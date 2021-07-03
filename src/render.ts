@@ -1,12 +1,16 @@
-import fetch from "node-fetch";
+import axios from "axios";
+import { v1 as uuid } from "uuid";
 import { URLSearchParams } from "url";
+import twitterClient from "./twc";
 
-const token = process.env.BEARER_TOKEN;
+const mbToken = process.env.MB_TOKEN;
 const tweetURL = "https://api.twitter.com/2/tweets?";
+const API_ENDPOINT = "http://localhost:3002/api/motionbox-render";
 
 interface ISendRender {
   tweetId: string;
   tweetText: string;
+  connectionId: string;
 }
 
 // TODO: Before sending render requests to prevent abuse
@@ -14,34 +18,83 @@ interface ISendRender {
 export const sendRenderRequest = async ({
   tweetId,
   tweetText,
+  connectionId,
 }: ISendRender) => {
   try {
-    const params = new URLSearchParams({
+    const paramsRes = new URLSearchParams({
       ids: tweetId,
-      expansions: "author_id",
+      expansions: "author_id,referenced_tweets.id",
+      "tweet.fields": "referenced_tweets,id,entities",
       "user.fields": "profile_image_url",
     });
 
-    console.log({
-      url: tweetURL + params,
-    });
-
-    const res = await fetch(tweetURL + params, {
-      method: "GET",
-      headers: {
-        Authorization: "Bearer " + token,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-    });
-
-    const tweetData = await res.json();
-    const twitterUser = tweetData.includes.users[0];
+    const tweets = await twitterClient.get(tweetURL + paramsRes);
+    const twitterUser = tweets.includes.users[0];
+    const opTweetId = tweets.data[0].referenced_tweets[0].id;
+    const opTweet = await getOpTweet({ opTweetId });
 
     console.log({
-      tweetText,
-      twitterUser,
+      tweets: JSON.stringify(tweets),
+      opTweet: JSON.stringify(opTweet),
+    });
+
+    doRenderReq({
+      tweetId,
+      tweetText: opTweet.data[0].text,
+      twitterUser: opTweet.includes.users[0],
+      connectionId,
     });
   } catch (e) {
     console.log(`Error getting Tweet ${e}`);
+  }
+};
+
+const getOpTweet = async ({ opTweetId }: any) => {
+  const params = new URLSearchParams({
+    ids: opTweetId,
+    expansions: "author_id",
+    "user.fields": "profile_image_url",
+  });
+
+  return await twitterClient.get(tweetURL + params);
+};
+
+const doRenderReq = async ({
+  tweetId,
+  tweetText,
+  twitterUser,
+  connectionId,
+}: any) => {
+  try {
+    const videoId = uuid() + "-TWITTER-" + tweetId;
+    const templateId = "ckqmq9sjx00110vjlbveims79";
+    const data = {
+      ["7eb6b9a0-db6b-11eb-867a-6d651b8f4eae"]: {
+        text: tweetText,
+      },
+      ["32614b00-db6c-11eb-867a-6d651b8f4eae"]: {
+        text: `@${twitterUser.username}`,
+      },
+      ["a65d2d40-db6b-11eb-867a-6d651b8f4eae"]: {
+        link: twitterUser.profile_image_url,
+      },
+    };
+
+    await axios({
+      method: "post",
+      url: API_ENDPOINT,
+      data: {
+        data,
+        token: mbToken,
+        videoId,
+        templateId,
+        connectionId,
+      },
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  } catch (e) {
+    console.log(`Error triggering render job ${e}`);
   }
 };

@@ -1,5 +1,6 @@
-const needle = require("needle");
-import { sendRenderRequest } from "./render";
+import needle from "needle";
+import EventEmitter from "events";
+import { getAllRules, setRules, deleteAllRules } from "./rules";
 
 // The code below sets the bearer token from your environment variables
 // To set environment variables on macOS or Linux, run the export command below from the terminal:
@@ -12,7 +13,10 @@ const streamURL = "https://api.twitter.com/2/tweets/search/stream";
 // with a standard project with Basic Access, you can add up to 25 concurrent rules to your stream, and
 // each rule can be up to 512 characters long
 
-export function streamConnect(retryAttempt: any) {
+export function streamConnect(
+  retryAttempt: number,
+  eventEmitter: EventEmitter
+) {
   const stream = needle.get(streamURL, {
     headers: {
       "User-Agent": "v2FilterStreamJS",
@@ -26,13 +30,13 @@ export function streamConnect(retryAttempt: any) {
       try {
         const json = JSON.parse(data);
 
-        // TODO: Use JSON and pull data.id to find tweet ID if needed
-        // can also use data.text to turn into video
-        // need to find user data to make tweet card UI
+        // trigger render event
+        eventEmitter.emit("trigger", {
+          json,
+        });
 
-        sendRenderRequest({
-          tweetId: json.data.id,
-          tweetText: json.data.text,
+        console.log({
+          json,
         });
 
         // A successful connection resets retry count.
@@ -61,10 +65,31 @@ export function streamConnect(retryAttempt: any) {
         // will increase if the client cannot reconnect to the stream.
         setTimeout(() => {
           console.warn("A connection error occurred. Reconnecting...");
-          streamConnect(++retryAttempt);
+          streamConnect(++retryAttempt, eventEmitter);
         }, 2 ** retryAttempt);
       }
     });
 
   return stream;
 }
+
+export const twitterStream = async (eventEmitter: EventEmitter) => {
+  let currentRules;
+
+  try {
+    // Gets the complete list of rules currently applied to the stream
+    currentRules = await getAllRules();
+
+    // Delete all rules. Comment the line below if you want to keep your existing rules.
+    await deleteAllRules(currentRules);
+
+    // Add rules to the stream. Comment the line below if you don't want to add new rules.
+    await setRules();
+  } catch (e) {
+    console.error(e);
+    process.exit(1);
+  }
+
+  // Listen to the stream.
+  streamConnect(0, eventEmitter);
+};
