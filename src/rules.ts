@@ -6,7 +6,7 @@ const rulesURL = "https://api.twitter.com/2/tweets/search/stream/rules";
 // Edit rules as desired below
 const rules = [
   {
-    value: "@_motionbox",
+    value: "@_motionbox render is:reply -is:retweet",
   },
 ];
 
