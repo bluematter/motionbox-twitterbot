@@ -35,9 +35,7 @@ export function streamConnect(
           json,
         });
 
-        console.log({
-          json,
-        });
+        console.log(JSON.stringify(json));
 
         // A successful connection resets retry count.
         retryAttempt = 0;
@@ -81,7 +79,7 @@ export const twitterStream = async (eventEmitter: EventEmitter) => {
     currentRules = await getAllRules();
 
     // Delete all rules. Comment the line below if you want to keep your existing rules.
-    await deleteAllRules(currentRules);
+    // await deleteAllRules(currentRules);
 
     // Add rules to the stream. Comment the line below if you don't want to add new rules.
     await setRules();
