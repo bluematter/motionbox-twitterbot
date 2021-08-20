@@ -12,7 +12,7 @@
   "devDependencies": {
     "@types/express": "^4.17.12",
     "@types/needle": "^2.5.1",
-    "@types/node": "^15.14.0",
+    "@types/node": "^16.7.0",
     "@types/node-fetch": "^2.5.10",
     "@types/uuid": "^8.3.1",
     "@types/websocket": "^1.0.3",
