@@ -5,7 +5,8 @@ import twitterClient from "./twc";
 
 const mbToken = process.env.MB_TOKEN;
 const tweetURL = "https://api.twitter.com/2/tweets?";
-const API_ENDPOINT = "http://localhost:3002/api/motionbox-render";
+const API_ENDPOINT =
+  "http://microservice-staging.vercel.app/api/motionbox-render";
 
 interface ISendRender {
   tweetId: string;

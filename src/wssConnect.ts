@@ -25,7 +25,7 @@ const wssConnect = (socket: Socket, eventEmitter: EventEmitter) => {
       console.log("echo-protocol Connection Closed");
     });
 
-    connection.on("message", (message) => {
+    connection.on("message", (message: any) => {
       try {
         const payload = message.utf8Data ? JSON.parse(message.utf8Data) : {};
 
