@@ -70,14 +70,6 @@ const doRenderReq = async ({
     const videoId = uuid() + "-TWITTER-" + tweetId;
     const templateId = "ckqmq9sjx00110vjlbveims79";
     const data = {
-      ["df6c0210-ded5-11eb-a4ff-112a69c6a1a6"]: {
-        animationData: {
-          animationText: {
-            "Text 01": "Follow",
-            "Text 02": `@${twitterUser.username.toUpperCase()}`,
-          },
-        },
-      },
       ["7eb6b9a0-db6b-11eb-867a-6d651b8f4eae"]: {
         text: tweetText,
       },
