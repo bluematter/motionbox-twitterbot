@@ -17,6 +17,7 @@ const respond = async ({ videoId, videoUrl }: IRespond) => {
   await doRespond({
     videoId,
     mediaId,
+    videoUrl,
   });
 };
 
