@@ -58,6 +58,7 @@ const wssConnect = (socket: Socket, eventEmitter: EventEmitter) => {
       );
 
       console.log("Trigger called...", {
+        twitterData,
         ignore,
       });
 
