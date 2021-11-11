@@ -1,10 +1,10 @@
 import twitterClient from "./twc";
 
-interface IGetVideoUrl {
+interface IGetMedia {
   tweetId: string;
 }
 
-export const getVideoUrl = async ({ tweetId }: IGetVideoUrl) => {
+export const getMedia = async ({ tweetId }: IGetMedia) => {
   const tweet: any = await twitterClient.v1.singleTweet(tweetId, {
     include_entities: true,
   });
@@ -18,17 +18,32 @@ export const getVideoUrl = async ({ tweetId }: IGetVideoUrl) => {
       firstMedia: JSON.stringify(firstMedia),
     });
 
-    for (let j = 0; j < firstMedia.video_info.variants.length; j++) {
-      if (firstMedia.video_info.variants[j].bitrate) {
-        if (firstMedia.video_info.variants[j].bitrate > bitrate) {
-          bitrate = firstMedia.video_info.variants[j].bitrate;
-          hq_video_url = firstMedia.video_info.variants[j].url;
+    if (firstMedia.type === "video") {
+      for (let j = 0; j < firstMedia.video_info.variants.length; j++) {
+        if (firstMedia.video_info.variants[j].bitrate) {
+          if (firstMedia.video_info.variants[j].bitrate > bitrate) {
+            bitrate = firstMedia.video_info.variants[j].bitrate;
+            hq_video_url = firstMedia.video_info.variants[j].url;
+          }
         }
       }
+
+      return {
+        url: hq_video_url,
+        type: firstMedia.type,
+      };
     }
 
-    return hq_video_url;
+    if (firstMedia.type === "photo") {
+      return {
+        url: firstMedia.media_url_https,
+        type: firstMedia.type,
+      };
+    }
   }
 
-  return false;
+  return {
+    url: "",
+    type: undefined,
+  };
 };

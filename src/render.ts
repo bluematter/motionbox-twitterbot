@@ -2,7 +2,7 @@ import axios from "axios";
 import { v1 as uuid } from "uuid";
 import { URLSearchParams } from "url";
 import twitterClient from "./twc";
-import { getVideoUrl } from "./helpers";
+import { getMedia } from "./helpers";
 
 const mbToken = process.env.MB_TOKEN;
 const tweetURL = "https://api.twitter.com/2/tweets?";
@@ -76,15 +76,15 @@ const doRenderReq = async ({
     const videoId = uuid() + "-TWITTER-" + tweetId;
 
     // TODO: Check for images
-    const videoUrl = await getVideoUrl({
+    const media = await getMedia({
       tweetId: opTweetId,
     });
 
-    if (videoUrl) {
+    if (media.type === "video") {
       templateId = "ckvrby1x14284yy9kghoqmd3o";
       data = {
         ["8d8d9e40-40f0-11ec-a818-f5665b315f24"]: {
-          link: videoUrl,
+          link: media.url,
         },
         ["0102cee0-40f1-11ec-8faf-7dcee8697d2c"]: {
           text: tweetText,
@@ -96,7 +96,27 @@ const doRenderReq = async ({
           link: twitterUser.profile_image_url,
         },
       };
-    } else {
+    }
+
+    if (media.type === "photo") {
+      templateId = "ckvsfzmqb0605est9rqwbgs1a";
+      data = {
+        ["e865e250-4190-11ec-a60b-9577772dba7b"]: {
+          link: media.url,
+        },
+        ["82192ee0-418f-11ec-99ee-4f61d1f35be5"]: {
+          text: tweetText,
+        },
+        ["06816750-4191-11ec-a60b-9577772dba7b"]: {
+          text: `@${twitterUser.username}`,
+        },
+        ["3472cbb0-418f-11ec-99ee-4f61d1f35be5"]: {
+          link: twitterUser.profile_image_url,
+        },
+      };
+    }
+
+    if (media.type === undefined) {
       templateId = "ckqmq9sjx00110vjlbveims79";
       data = {
         ["7eb6b9a0-db6b-11eb-867a-6d651b8f4eae"]: {
