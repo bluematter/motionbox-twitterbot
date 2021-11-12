@@ -15,6 +15,10 @@ const wssConnect = (socket: Socket, eventEmitter: EventEmitter) => {
 
     if (connection.connected) {
       connection.send("connectionId");
+
+      setInterval(() => {
+        connection.send("heartbeat");
+      }, 10000);
     }
 
     connection.on("error", (error) => {
@@ -41,7 +45,7 @@ const wssConnect = (socket: Socket, eventEmitter: EventEmitter) => {
         }
 
         console.log(
-          "Monitor WSS messages for progress and finished video renders",
+          "Monitor WSS messages for progress, finished video renders, and heartbeats",
           {
             payload,
           }
