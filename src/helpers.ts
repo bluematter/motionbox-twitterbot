@@ -31,6 +31,8 @@ export const getMedia = async ({ tweetId }: IGetMedia) => {
       return {
         url: hq_video_url,
         type: firstMedia.type,
+        width: firstMedia.sizes.small.w,
+        height: firstMedia.sizes.small.h,
       };
     }
 
@@ -38,6 +40,8 @@ export const getMedia = async ({ tweetId }: IGetMedia) => {
       return {
         url: firstMedia.media_url_https,
         type: firstMedia.type,
+        width: firstMedia.sizes.large.w,
+        height: firstMedia.sizes.large.h,
       };
     }
   }
@@ -45,5 +49,7 @@ export const getMedia = async ({ tweetId }: IGetMedia) => {
   return {
     url: "",
     type: undefined,
+    width: 0,
+    height: 0,
   };
 };

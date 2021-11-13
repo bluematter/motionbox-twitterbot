@@ -43,7 +43,7 @@ export const sendRenderRequest = async ({
     doRenderReq({
       tweetId,
       opTweetId,
-      tweetText: opTweet.data[0].text,
+      tweetText: opTweet.data[0].text.replace(/https:\/\/t.co\/([^\s]+)+/g, ""),
       twitterUser: opTweet.includes.users[0],
       connectionId,
     });
@@ -85,6 +85,8 @@ const doRenderReq = async ({
       data = {
         ["8d8d9e40-40f0-11ec-a818-f5665b315f24"]: {
           link: media.url,
+          width: media.width,
+          height: media.height,
         },
         ["0102cee0-40f1-11ec-8faf-7dcee8697d2c"]: {
           text: tweetText,
@@ -103,6 +105,8 @@ const doRenderReq = async ({
       data = {
         ["e865e250-4190-11ec-a60b-9577772dba7b"]: {
           link: media.url,
+          width: media.width,
+          height: media.height,
         },
         ["82192ee0-418f-11ec-99ee-4f61d1f35be5"]: {
           text: tweetText,
