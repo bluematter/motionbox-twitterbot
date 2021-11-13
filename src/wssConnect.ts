@@ -2,6 +2,8 @@ import EventEmitter from "events";
 import WebSocket from "websocket";
 import { sendRenderRequest } from "./render";
 import respondToTweet from "./respond";
+const SOCKET_URI =
+  "wss://c6ifiee5t6.execute-api.us-west-2.amazonaws.com/development";
 
 type Socket = WebSocket.client;
 
@@ -17,7 +19,7 @@ const wssConnect = (socket: Socket, eventEmitter: EventEmitter) => {
       connection.send("connectionId");
 
       setInterval(() => {
-        connection.send("heartbeat");
+        connection.send(`{ action: ${"heartbeat"} }`);
       }, 10000);
     }
 
@@ -27,6 +29,7 @@ const wssConnect = (socket: Socket, eventEmitter: EventEmitter) => {
 
     connection.on("close", () => {
       console.log("echo-protocol Connection Closed");
+      socket.connect(SOCKET_URI);
     });
 
     connection.on("message", (message: any) => {
